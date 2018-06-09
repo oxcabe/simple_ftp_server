@@ -36,8 +36,6 @@
 #include "../include/ClientConnection.h"
 
 
-
-
 ClientConnection::ClientConnection(int s) {
     int sock = (int)(s);
 
@@ -57,9 +55,6 @@ ClientConnection::ClientConnection(int s) {
 
     ok = true;
     data_socket = -1;
-
-
-
 };
 
 
@@ -271,7 +266,7 @@ void ClientConnection::stor() {
 }
 
 void ClientConnection::type() {
-    fprintf(fd, "200 OK (To Do).\n");
+    fprintf(fd, "200 OK ASCII ONLY.\n");
 }
 
 void ClientConnection::retr() {
