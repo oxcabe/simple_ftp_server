@@ -34,6 +34,22 @@ private:
 
     bool passive;   // Modo pasivo
     bool parar;     // Fin de ejecucion de comandos
+
+    // Implemented FTP commands
+    void user();    // Login prompt
+    void pwd();     // pwd
+    void pass();    // Password prompt
+    void port();    // Data port
+    void pasv();    // Passive mode (pass)
+    void cwd();     // cd
+    void stor();    // put
+    void type();    // Representation type
+    void retr();    // get
+    void list();    // ls
+    void syst();    // system
+    void quit();    // quit / bye
+    void defc();    // Default case (Command not implemented)
+
 };
 
 #endif
