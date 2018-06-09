@@ -111,7 +111,6 @@ void ClientConnection::WaitForRequests() {
 
     fprintf(fd, "220 Service ready\n");
     while(!parar) {
-
       std::cout << "Waiting for instructions...\n";
       fscanf(fd, "%s", command);
 
@@ -122,32 +121,19 @@ void ClientConnection::WaitForRequests() {
       else if (COMMAND("PASS")) { pass(); }
       else if (COMMAND("PORT")) { port(); }
       else if (COMMAND("PASV")) { pasv(); }
-/*
-      else if (COMMAND("CWD")) {
-
-      }
-
-      else if (COMMAND("STOR") ) {
-
-      }
-
-      else if (COMMAND("TYPE")) {
-
-      }
-*/
+      else if (COMMAND("CWD"))  { cwd();  }
+      else if (COMMAND("STOR")) { stor(); }
+      else if (COMMAND("TYPE")) { type(); }
       else if (COMMAND("RETR")) { retr(); }
       else if (COMMAND("LIST")) { list(); }
       else if (COMMAND("SYST")) { syst(); }
       else if (COMMAND("QUIT")) { quit(); }
       else                      { defc(); }
-
     }
 
     fclose(fd);
 
-
     return;
-
 };
 
 void ClientConnection::user() {
@@ -240,15 +226,52 @@ void ClientConnection::pasv() {
 }
 
 void ClientConnection::cwd() {
+    char aux[200];
 
+	   getcwd(aux, sizeof(aux));
+
+	   if(!chdir(aux)) {
+         fprintf(fd, "250 Working directory changed.");
+       } else if (chdir(aux) < 0) {
+           fprintf(fd, "431 No such directory.");
+       }
 }
 
 void ClientConnection::stor() {
+    fscanf(fd, "%s", arg);
 
+    FILE* file = fopen(arg,"wb");
+
+    if (!file) {
+        fprintf(fd, "450 Requested file action not taken. File unavailable.\n");
+        close(data_socket);
+    } else {
+        fprintf(fd, "150 File status okay; opening data connection.\n");
+        fflush(fd);
+
+        struct sockaddr_in socket_addr;
+        socklen_t socket_addr_len = sizeof(socket_addr);
+        char buffer[MAX_BUFF];
+        int n;
+
+        if (passive) {
+            data_socket = accept(data_socket,(struct sockaddr *)&socket_addr,
+                &socket_addr_len);
+        }
+
+        do {
+            n = recv(data_socket, buffer, MAX_BUFF, 0);
+            fwrite(buffer, sizeof(char) , n, file);
+        } while (n == MAX_BUFF);
+
+        fprintf(fd,"226 Closing data connection. Operation successfully completed.\n");
+        fclose(file);
+        close(data_socket);
+   }
 }
 
 void ClientConnection::type() {
-
+    fprintf(fd, "200 OK (To Do).\n");
 }
 
 void ClientConnection::retr() {
